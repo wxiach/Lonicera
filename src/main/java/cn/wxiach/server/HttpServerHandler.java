@@ -22,7 +22,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                                                                 HttpResponseStatus.OK,
                                                                 Unpooled.copiedBuffer(result, CharsetUtil.UTF_8));
 
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html");
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
 
         ctx.writeAndFlush(response);
