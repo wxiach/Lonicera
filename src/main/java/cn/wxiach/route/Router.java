@@ -5,6 +5,8 @@ import cn.wxiach.http.HttpMethod;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static cn.wxiach.util.RouteUtils.generateRouteKey;
+
 /**
  * @author wxiach 2023/10/8
  */
@@ -23,7 +25,7 @@ public class Router {
     }
 
     public void addRoute(Route route) {
-        String routeKey = generateRouteKey(route.path(), route.method());
+        String routeKey = generateRouteKey(route.path(), route.method().name());
         if (routes.containsKey(routeKey)) {
             throw new RouteException("routeKey: " + routeKey + " already exists");
         }
@@ -32,10 +34,6 @@ public class Router {
 
     public Route getRoute(String routeKey) {
         return routes.get(routeKey);
-    }
-
-    private String generateRouteKey(String path, HttpMethod method) {
-        return path + ":" + method.name();
     }
 
 }

@@ -11,5 +11,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Get {
-    String path() default "/";
+    String[] path() default {};
+
+    String[] consumes() default {};
+
+    String[] produces() default {};
 }

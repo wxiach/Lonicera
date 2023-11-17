@@ -21,10 +21,12 @@ public class RoutesRegistrationDelegate {
             for (Method method : methods) {
                 if (method.isAnnotationPresent(Get.class)) {
                     String clazzPathValue = bean.getType().getAnnotation(Path.class).value();
-                    String methodPathValue = method.getAnnotation(Get.class).path();
-                    String path = resolveAnnotationPathValue(clazzPathValue, methodPathValue);
-                    Route route = new Route(path, HttpMethod.GET, bean.getBean(), method);
-                    Router.getInstance().addRoute(route);
+                    String[] methodPathValues = method.getAnnotation(Get.class).path();
+                    for (String methodPathValue : methodPathValues) {
+                        String path = resolveAnnotationPathValue(clazzPathValue, methodPathValue);
+                        Route route = new Route(path, HttpMethod.GET, bean.getBean(), method);
+                        Router.getInstance().addRoute(route);
+                    }
                 }
             }
         });
