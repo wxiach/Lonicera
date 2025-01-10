@@ -1,53 +1,69 @@
 package cn.wxiach.context;
 
+import cn.wxiach.annotations.Component;
 import cn.wxiach.beans.BeanDefinition;
 import cn.wxiach.beans.BeanDefinitionRegistry;
+import cn.wxiach.utils.ClassUtils;
 
 import java.io.File;
-import java.net.URL;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author wxiach 2025/1/9
  */
 public class ClassPathBeanDefinitionScanner {
     private final BeanDefinitionRegistry registry;
-    private final BeanNameGenerator beanNameGenerator;
 
     public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
         this.registry = registry;
-        this.beanNameGenerator = new DefaultBeanNameGenerator();
     }
 
     public void scanPackage(String basePackageName) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        findAllClassesInPackage(basePackageName, classLoader);
+        Path path = convertToSearchPath(basePackageName);
+        if (Files.notExists(path) || !Files.isDirectory(path)) return;
+
+        try {
+            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    if (file.toString().endsWith(".class")) {
+                        processClassFile(file, basePackageName);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            throw new BeanDefinitionStoreException("Error while walking path: " + path, e);
+        }
     }
 
-    private void findAllClassesInPackage(String packageName, ClassLoader classLoader) {
-        String searchPath = packageName.replace('.', '/');
-        URL url = this.getClass().getClassLoader().getResource(searchPath);
-        if (url == null) {
-            return;
+    private Path convertToSearchPath(String packageName) {
+        try {
+            String searchPath = packageName.replace('.', '/');
+            URI uri = Optional.of(Objects.requireNonNull(ClassUtils.getDefaultClassLoader().getResource(searchPath)).toURI())
+                    .orElseThrow(() -> new BeanDefinitionStoreException("Resource not found for package: " + packageName));
+            return Paths.get(uri);
+        } catch (URISyntaxException e) {
+            throw new BeanDefinitionStoreException("URISyntaxException while walking the directory tree for package: " + packageName, e);
         }
-        File dir = new File(url.getFile());
-        File[] files = dir.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                findAllClassesInPackage(packageName + "." + file.getName(), classLoader);
-            }
-            else {
-                String fileName = file.getName();
-                if (fileName.endsWith(".class")) {
-                    String className = packageName + '.' + fileName.substring(0, fileName.length() - 6);
-                    try {
-                        Class<?> clazz = classLoader.loadClass(className);
-                        BeanDefinition beanDefinition = new BeanDefinition(clazz);
-                        this.registry.registerBeanDefinition(beanNameGenerator.generateBeanName(clazz), beanDefinition);
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
+    }
+
+    private void processClassFile(Path file, String packageName) {
+        String  className = file.toString().replace(File.separatorChar, '.');
+        className = className.substring(className.indexOf(packageName), className.length() - 6);
+        try {
+            Class<?> clazz = ClassUtils.getDefaultClassLoader().loadClass(className);
+            if (!clazz.isAnnotationPresent(Component.class)) return;
+            BeanDefinition beanDefinition = new BeanDefinition(clazz);
+            this.registry.registerBeanDefinition(BeanNameGenerator.generate(clazz), beanDefinition);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

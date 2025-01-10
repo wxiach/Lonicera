@@ -21,6 +21,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     }
 
     @Override
+    public <T> T getBean(String name, Class<T> requiredType) {
+        return getBeanFactory().getBean(name, requiredType);
+    }
+
+    @Override
     public <T> Map<String, T> getBeansOfType(Class<T> type) throws Exception {
         return getBeanFactory().getBeansOfType(type);
     }
