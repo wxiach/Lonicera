@@ -1,9 +1,11 @@
 package cn.wxiach.context;
 
 import cn.wxiach.annotations.Component;
+import cn.wxiach.annotations.Scope;
 import cn.wxiach.beans.BeanDefinition;
 import cn.wxiach.beans.BeanDefinitionRegistry;
 import cn.wxiach.utils.ClassUtils;
+import cn.wxiach.utils.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,10 +63,20 @@ public class ClassPathBeanDefinitionScanner {
             Class<?> clazz = ClassUtils.getDefaultClassLoader().loadClass(className);
             if (!clazz.isAnnotationPresent(Component.class)) return;
             BeanDefinition beanDefinition = new BeanDefinition(clazz);
+            parseScopeOfBeanDefinition(beanDefinition);
             this.registry.registerBeanDefinition(BeanNameGenerator.generate(clazz), beanDefinition);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void parseScopeOfBeanDefinition(BeanDefinition beanDefinition) {
+        Class<?> beanClass = beanDefinition.getBeanClass();
+        if (beanClass.isAnnotationPresent(Scope.class)) {
+            String scope = beanClass.getAnnotation(Scope.class).value();
+            if (StringUtils.hasText(scope)) beanDefinition.setScope(scope);
+        }
+        if (!StringUtils.hasText(beanDefinition.getScope())) beanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
     }
 
 }

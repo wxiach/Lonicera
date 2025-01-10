@@ -25,7 +25,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
                 throw new BeansException("Bean with name " + name + " not found");
             }
             beanInstance = createBean(beanName, beanDefinition);
-            registerSingleton(beanName, beanInstance);
+            if (beanDefinition.isSingleton()) {
+                registerSingleton(beanName, beanInstance);
+            }
         }
         if (requiredType != null && !requiredType.isInstance(beanInstance)) {
             throw new BeansException("Bean with name " + name + " is not of required type " + requiredType.getName());
