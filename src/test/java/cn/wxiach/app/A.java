@@ -1,5 +1,6 @@
 package cn.wxiach.app;
 
+import cn.wxiach.annotations.Autowired;
 import cn.wxiach.annotations.Component;
 
 /**

@@ -1,5 +1,10 @@
 package cn.wxiach.beans;
 
+import cn.wxiach.annotations.Autowired;
+import cn.wxiach.utils.ClassUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +36,31 @@ public class DefaultBeanFactory extends AbstractBeanFactory implements ListableB
     protected Object createBean(String beanName, BeanDefinition beanDefinition) {
         Class<?> beanClass = beanDefinition.getBeanClass();
         try {
-            return beanClass.getDeclaredConstructor().newInstance();
+            Constructor<?>[] candidates = beanClass.getDeclaredConstructors();
+            if (candidates.length == 1 && candidates[0].getParameterTypes().length == 0) {
+                return candidates[0].newInstance();
+            }
+            ClassUtils.sortConstructors(candidates);
+            for (Constructor<?> constructor : candidates) {
+                if (constructor.isAnnotationPresent(Autowired.class)) {
+                    return createInstanceWithAutowiredConstructor(constructor);
+                }
+            }
+            throw new BeansCreateException("Failed to create bean: " + beanName);
         } catch (Exception e) {
             throw new BeansCreateException("Failed to create bean: " + beanClass.getName(), e);
         }
+    }
+
+    private Object createInstanceWithAutowiredConstructor(Constructor<?> constructor) throws Exception {
+        Parameter[] parameters = constructor.getParameters();
+        Object[] args = new Object[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            // To obtain the correct parameter names, '-parameters' should be added to the compile command.
+            args[i] = this.getBean(parameters[i].getName());
+        }
+        constructor.setAccessible(true);
+        return constructor.newInstance(args);
     }
 
     @Override
@@ -54,7 +80,7 @@ public class DefaultBeanFactory extends AbstractBeanFactory implements ListableB
     }
 
     @Override
-    public <T> Map<String, T> getBeansOfType(Class<T> type) throws Exception {
+    public <T> Map<String, T> getBeansOfType(Class<T> type) {
         Map<String, T> result = new HashMap<>(16);
         String[] beanNames = getBeanNamesForType(type);
         for (String beanName : beanNames) {

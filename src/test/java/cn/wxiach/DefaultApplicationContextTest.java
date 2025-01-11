@@ -38,4 +38,10 @@ public class DefaultApplicationContextTest {
         C c2 = (C)context.getBean("c");
         Assertions.assertNotEquals(c1, c2);
     }
+
+    @Test
+    public void testConstructorAutowired() {
+        B b = context.getBean("b", B.class);
+        Assertions.assertNotNull(b.getA());
+    }
 }

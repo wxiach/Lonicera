@@ -1,7 +1,11 @@
-target/
+# Gradle build folder
+/build/
+
+# Maven build folder
+/target/
+
+# Keep Maven wrapper (if still needed)
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
 ### IntelliJ IDEA ###
 .idea/
@@ -24,9 +28,6 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
