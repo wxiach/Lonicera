@@ -7,7 +7,7 @@ public class DefaultApplicationContext extends GenericApplicationContext {
 
     private final AnnotatedBeanDefinitionReader reader;
 
-    public DefaultApplicationContext() {
+    protected DefaultApplicationContext() {
         reader = new AnnotatedBeanDefinitionReader(this);
     }
 

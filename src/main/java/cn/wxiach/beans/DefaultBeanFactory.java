@@ -35,6 +35,11 @@ public class DefaultBeanFactory extends AbstractBeanFactory implements ListableB
     protected Object createBean(String beanName, BeanDefinition beanDefinition) {
         Class<?> beanClass = beanDefinition.getBeanClass();
         Object beanInstance = this.createBeanInstance(beanClass);
+
+        if (beanDefinition.isSingleton() && this.isSingletonCurrentlyInCreation(beanName)) {
+            this.addEarlySingletonObjects(beanName, beanInstance);
+        }
+
         populateBean(beanClass, beanInstance);
         return beanInstance;
     }
