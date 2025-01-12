@@ -1,4 +1,4 @@
-package cn.wxiach.app;
+package cn.wxiach.ioc.context;
 
 import cn.wxiach.annotations.Component;
 import cn.wxiach.annotations.Scope;
@@ -9,10 +9,5 @@ import cn.wxiach.beans.BeanDefinition;
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class C {
-    String name = "c";
-
-    public String getName() {
-        return name;
-    }
+public class BeanC {
 }
