@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * @author wxiach 2025/1/11
  */
-@Target({ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Autowired {
 }

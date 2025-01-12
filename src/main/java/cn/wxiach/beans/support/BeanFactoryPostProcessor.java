@@ -1,6 +1,5 @@
 package cn.wxiach.beans.support;
 
-import cn.wxiach.beans.AbstractBeanFactory;
 import cn.wxiach.beans.DefaultBeanFactory;
 
 /**

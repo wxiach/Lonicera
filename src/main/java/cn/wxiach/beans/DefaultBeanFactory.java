@@ -48,7 +48,7 @@ public class DefaultBeanFactory extends AbstractBeanFactory implements ListableB
             }
             throw new BeansCreateException("Failed to create bean: " + beanName);
         } catch (Exception e) {
-            throw new BeansCreateException("Failed to create bean: " + beanClass.getName(), e);
+            throw new BeansCreateException("Failed to create bean: " + beanName, e);
         }
     }
 
