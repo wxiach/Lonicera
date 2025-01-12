@@ -1,14 +1,13 @@
 package cn.wxiach.beans;
 
 import cn.wxiach.annotations.Autowired;
-import cn.wxiach.utils.ClassUtils;
+import cn.wxiach.utils.StringUtils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author wxiach 2025/1/8
@@ -35,32 +34,57 @@ public class DefaultBeanFactory extends AbstractBeanFactory implements ListableB
     @Override
     protected Object createBean(String beanName, BeanDefinition beanDefinition) {
         Class<?> beanClass = beanDefinition.getBeanClass();
+        Object beanInstance = this.createBeanInstance(beanClass);
+        populateBean(beanClass, beanInstance);
+        return beanInstance;
+    }
+
+    private Object createBeanInstance(Class<?> beanClass) {
+        Constructor<?>[] candidatesConstructors = beanClass.getDeclaredConstructors();
+        List<Constructor<?>> autowiredConstructors = Arrays.stream(candidatesConstructors)
+                .filter(constructor -> constructor.isAnnotationPresent(Autowired.class))
+                .collect(Collectors.toList());
+
+        if (autowiredConstructors.isEmpty() && candidatesConstructors.length > 1) {
+            throw new BeansCreateException("Multiple constructors found for class " + beanClass.getName()
+                    + " but none are annotated with @Autowired");
+        }
+
+        if (autowiredConstructors.size() > 1) {
+            throw new BeansCreateException("Multiple constructors annotated with @Autowired found for class " + beanClass.getName());
+        }
+
+        Constructor<?> constructorToUse = autowiredConstructors.isEmpty() ? candidatesConstructors[0] : autowiredConstructors.get(0);
+
         try {
-            Constructor<?>[] candidates = beanClass.getDeclaredConstructors();
-            if (candidates.length == 1 && candidates[0].getParameterTypes().length == 0) {
-                return candidates[0].newInstance();
-            }
-            ClassUtils.sortConstructors(candidates);
-            for (Constructor<?> constructor : candidates) {
-                if (constructor.isAnnotationPresent(Autowired.class)) {
-                    return createInstanceWithAutowiredConstructor(constructor);
-                }
-            }
-            throw new BeansCreateException("Failed to create bean: " + beanName);
-        } catch (Exception e) {
-            throw new BeansCreateException("Failed to create bean: " + beanName, e);
+            // To obtain the correct parameter names, '-parameters' should be added to the compile command.
+            Object[] constructorArguments = Arrays.stream(constructorToUse.getParameters())
+                    .map(parameter -> this.getBean(parameter.getName())).toArray();
+            constructorToUse.setAccessible(true);
+            return constructorToUse.newInstance(constructorArguments);
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            throw new BeansCreateException("Failed to create bean instance while instantiating class " + beanClass.getName(), e);
         }
     }
 
-    private Object createInstanceWithAutowiredConstructor(Constructor<?> constructor) throws Exception {
-        Parameter[] parameters = constructor.getParameters();
-        Object[] args = new Object[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            // To obtain the correct parameter names, '-parameters' should be added to the compile command.
-            args[i] = this.getBean(parameters[i].getName());
+    private void populateBean(Class<?> beanClass, Object beanInstance) {
+        for (Field field : beanClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(Autowired.class)) {
+                field.setAccessible(true);
+
+                Autowired autowired = field.getAnnotation(Autowired.class);
+                String beanName = StringUtils.hasText(autowired.value()) ? autowired.value() : field.getName();
+
+                Object bean = getBean(beanName, field.getType());
+
+                try {
+                    field.set(beanInstance, bean);
+                } catch (IllegalAccessException e) {
+                    throw new BeansCreateException("Failed to inject dependency into field "
+                            + field.getName() + " of bean " + beanClass.getName(), e);
+                }
+            }
         }
-        constructor.setAccessible(true);
-        return constructor.newInstance(args);
     }
 
     @Override

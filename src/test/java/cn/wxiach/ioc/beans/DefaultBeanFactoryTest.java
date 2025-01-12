@@ -2,7 +2,6 @@ package cn.wxiach.ioc.beans;
 
 import cn.wxiach.beans.BeanDefinition;
 import cn.wxiach.beans.DefaultBeanFactory;
-import cn.wxiach.ioc.context.BeanC;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +35,4 @@ public class DefaultBeanFactoryTest {
         BeanB beanB = this.beanFactory.getBean("beanB", BeanB.class);
         Assertions.assertNotNull(beanB.getBeanC());
     }
-
-
 }
