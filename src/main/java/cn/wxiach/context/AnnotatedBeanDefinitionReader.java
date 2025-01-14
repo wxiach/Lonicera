@@ -2,7 +2,7 @@ package cn.wxiach.context;
 
 import cn.wxiach.beans.BeanDefinition;
 import cn.wxiach.beans.BeanDefinitionRegistry;
-import cn.wxiach.beans.support.ConfigurationClassPostProcessor;
+import cn.wxiach.beans.config.ConfigurationClassPostProcessor;
 
 /**
  * @author wxiach 2025/1/9
@@ -26,8 +26,7 @@ public class AnnotatedBeanDefinitionReader {
 
     public void registerBean(Class<?> beanClass) {
         BeanDefinition beanDefinition = new BeanDefinition(beanClass);
-        String beanName = beanClass.getSimpleName();
-        registry.registerBeanDefinition(beanName, beanDefinition);
+        registry.registerBeanDefinition(BeanNameGenerator.generate(beanClass), beanDefinition);
     }
 
 

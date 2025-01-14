@@ -34,4 +34,11 @@ public class DefaultApplicationContextTest {
         BeanC beanC2 =context.getBean("beanC", BeanC.class);
         Assertions.assertNotSame(beanC1, beanC2);
     }
+
+    @Test
+    public void testBeanRegistrationWithConfiguration() {
+        BeanD beanD1 = context.getBean("beanD", BeanD.class);
+        BeanD beanD2 = context.getBean("appConfig", AppConfig.class).beanD();
+        Assertions.assertSame(beanD1, beanD2);
+    }
 }

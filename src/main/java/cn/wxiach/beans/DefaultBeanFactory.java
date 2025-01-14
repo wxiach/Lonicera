@@ -1,6 +1,7 @@
 package cn.wxiach.beans;
 
 import cn.wxiach.annotations.Autowired;
+import cn.wxiach.beans.support.BeanFactoryAware;
 import cn.wxiach.utils.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -41,6 +42,7 @@ public class DefaultBeanFactory extends AbstractBeanFactory implements ListableB
         }
 
         populateBean(beanClass, beanInstance);
+        initializeBean(beanInstance);
         return beanInstance;
     }
 
@@ -89,6 +91,12 @@ public class DefaultBeanFactory extends AbstractBeanFactory implements ListableB
                             + field.getName() + " of bean " + beanClass.getName(), e);
                 }
             }
+        }
+    }
+
+    private void initializeBean(Object beanInstance) {
+        if (beanInstance instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) beanInstance).setBeanFactory(this);
         }
     }
 

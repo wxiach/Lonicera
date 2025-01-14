@@ -1,14 +1,14 @@
-package cn.wxiach.beans.support;
+package cn.wxiach.beans.config;
 
 import cn.wxiach.annotations.ComponentScan;
 import cn.wxiach.beans.BeanDefinition;
 import cn.wxiach.beans.BeanDefinitionRegistry;
 import cn.wxiach.context.ClassPathBeanDefinitionScanner;
+import cn.wxiach.utils.StringUtils;
 
 import java.util.List;
 
 /**
- * 
  * @author wxiach 2025/1/10
  */
 public class ConfigurationClassParser {
@@ -18,10 +18,8 @@ public class ConfigurationClassParser {
         this.registry = registry;
     }
 
-    public void parse(List<BeanDefinition> configurationClasses) {
-        configurationClasses.forEach(beanDefinition -> {
-            parseConfigurationClass(beanDefinition.getBeanClass());
-        });
+    public void parse(List<BeanDefinition> configBeanDefs) {
+        configBeanDefs.forEach(beanDef -> parseConfigurationClass(beanDef.getBeanClass()));
     }
 
     private void parseConfigurationClass(Class<?> configurationClass) {
@@ -29,7 +27,7 @@ public class ConfigurationClassParser {
         if (configurationClass.isAnnotationPresent(ComponentScan.class)) {
             ComponentScan componentScan = configurationClass.getAnnotation(ComponentScan.class);
             String basePackageName = componentScan.value();
-            if (basePackageName == null || basePackageName.isEmpty()) {
+            if (!StringUtils.hasText(basePackageName)) {
                 basePackageName = configurationClass.getPackage().getName();
             }
             scanner.scanPackage(basePackageName);

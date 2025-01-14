@@ -12,6 +12,8 @@ repositories {
 }
 
 dependencies {
+    implementation 'cglib:cglib:3.3.0'
+
     // JUnit Jupiter dependencies for testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
@@ -25,4 +27,3 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.compilerArgs << "-parameters"
 }
-

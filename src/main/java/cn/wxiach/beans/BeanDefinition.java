@@ -16,6 +16,10 @@ public class BeanDefinition {
         this.beanClass = beanClass;
     }
 
+    public void setBeanClass(Class<?> beanClass) {
+        this.beanClass = beanClass;
+    }
+
     public Class<?> getBeanClass() {
         return beanClass;
     }
