@@ -2,26 +2,19 @@ package cn.wxiach.context;
 
 import cn.wxiach.beans.BeanDefinition;
 import cn.wxiach.beans.BeanDefinitionRegistry;
-import cn.wxiach.beans.config.ConfigurationClassPostProcessor;
+import cn.wxiach.context.util.AnnotationConfigUtils;
+import cn.wxiach.context.util.BeanNameGenerator;
 
 /**
  * @author wxiach 2025/1/9
  */
 public class AnnotatedBeanDefinitionReader {
-    public static final String CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME =
-            "cn.wxiach.beans.annotation.configurationAnnotationProcessor";
+
     private final BeanDefinitionRegistry registry;
 
     public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {
         this.registry = registry;
-        registerAnnotationConfigProcessor();
-    }
-
-    private void registerAnnotationConfigProcessor() {
-        if (!this.registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-            BeanDefinition beanDefinition = new BeanDefinition(ConfigurationClassPostProcessor.class);
-            this.registry.registerBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME, beanDefinition);
-        }
+        AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
     }
 
     public void registerBean(Class<?> beanClass) {

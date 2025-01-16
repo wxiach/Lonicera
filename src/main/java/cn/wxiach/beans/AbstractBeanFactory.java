@@ -22,7 +22,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         if (beanInstance == null) {
             BeanDefinition beanDefinition = getBeanDefinition(beanName);
             if (beanDefinition == null) {
-                throw new BeansException("Bean with name " + name + " not found");
+                throw new NoSuchBeanDefinitionException("No bean with name '" + beanName + "' found");
             }
             if (beanDefinition.isSingleton()) {
                 beanInstance = this.getSingleton(beanName, () -> this.createBean(beanName, beanDefinition));
@@ -31,7 +31,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             }
         }
         if (requiredType != null && !requiredType.isInstance(beanInstance)) {
-            throw new BeansException("Bean with name " + name + " is not of required type " + requiredType.getName());
+            throw new BeansException("Bean with name '" + name + "' is not of required type " + requiredType.getName());
         }
         return (T) beanInstance;
     }

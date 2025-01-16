@@ -14,11 +14,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry{
     private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
     private final Set<String> singletonsCurrentlyInCreation = new HashSet<>(16);
 
-    @Override
-    public void registerSingleton(String beanName, Object singletonObject) {
-        this.addSingleton(beanName, singletonObject);
-    }
-
     private void addSingleton(String beanName, Object singletonObject) {
         this.singletonObjects.put(beanName, singletonObject);
         this.earlySingletonObjects.remove(beanName);

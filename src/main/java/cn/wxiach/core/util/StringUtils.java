@@ -1,14 +1,11 @@
-package cn.wxiach.utils;
+package cn.wxiach.core.util;
 
 /**
  * @author wxiach 2025/1/11
  */
 public class StringUtils {
-    public static boolean isEmpty(String str) {
-        return (str == null || str.isEmpty());
-    }
 
-    public  static boolean hasText(String str) {
+    public static boolean hasText(String str) {
         return (str != null && !str.isEmpty() && containsText(str));
     }
 

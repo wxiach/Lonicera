@@ -4,7 +4,7 @@ import cn.wxiach.annotations.ComponentScan;
 import cn.wxiach.beans.BeanDefinition;
 import cn.wxiach.beans.BeanDefinitionRegistry;
 import cn.wxiach.context.ClassPathBeanDefinitionScanner;
-import cn.wxiach.utils.StringUtils;
+import cn.wxiach.core.util.StringUtils;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@ package cn.wxiach.beans;
 
 import cn.wxiach.annotations.Autowired;
 import cn.wxiach.beans.support.BeanFactoryAware;
-import cn.wxiach.utils.StringUtils;
+import cn.wxiach.core.util.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

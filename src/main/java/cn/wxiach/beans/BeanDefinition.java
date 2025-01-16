@@ -8,7 +8,7 @@ public class BeanDefinition {
     public static final String SCOPE_PROTOTYPE = "prototype";
 
     private Class<?> beanClass;
-    private String scope;
+    private String scope = SCOPE_SINGLETON;
 
     private BeanDefinition() {}
 

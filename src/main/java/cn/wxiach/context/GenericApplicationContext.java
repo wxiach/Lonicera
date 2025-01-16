@@ -30,11 +30,6 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
     }
 
     @Override
-    public void registerBean(Class<?> beanClass) {
-        // Todo
-    }
-
-    @Override
     public DefaultBeanFactory getBeanFactory() {
         return this.beanFactory;
     }
