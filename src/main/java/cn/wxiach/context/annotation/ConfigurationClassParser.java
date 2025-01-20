@@ -28,7 +28,7 @@ public class ConfigurationClassParser {
             if (!StringUtils.hasText(basePackageName)) {
                 basePackageName = configurationClass.getPackage().getName();
             }
-            scanner.scanPackage(basePackageName);
+            scanner.scan(basePackageName);
         }
     }
 }

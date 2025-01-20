@@ -24,7 +24,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 
     public AnnotationConfigApplicationContext(String basePackage) {
         this();
-        scanner.scanPackage(basePackage);
+        scanner.scan(basePackage);
         refresh();
     }
 

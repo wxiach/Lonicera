@@ -1,53 +1,49 @@
 package cn.wxiach.context.annotation;
 
+import cn.wxiach.beans.BeanDefinitionStoreException;
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.support.BeanDefinitionRegistry;
-import cn.wxiach.beans.BeanDefinitionStoreException;
 import cn.wxiach.beans.support.BeanDefinitionUtils;
 import cn.wxiach.util.AnnotationUtils;
-import cn.wxiach.util.ClassUtils;
+import cn.wxiach.util.ResourceUtils;
 import cn.wxiach.util.StringUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Objects;
 
 /**
  * @author wxiach 2025/1/9
  */
 public class ClassPathBeanDefinitionScanner {
 
-    private static final char PACKAGE_SEPARATOR = '.';
-
-    private static final char PATH_SEPARATOR = '/';
-
-    private static final String CLASS_SUFFIX = ".class";
-
     private final BeanDefinitionRegistry registry;
-
-    private final ClassLoader classLoader;
 
     public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
         this.registry = registry;
-        this.classLoader = ClassUtils.getDefaultClassLoader();
+    }
+
+    public void scan(String basePackageName) {
+        doScan(basePackageName);
         AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
     }
 
-    public void scanPackage(String basePackageName) {
-        doScanPackage(basePackageName);
-    }
-
-    protected void doScanPackage(String basePackageName) {
-        Path basePath = convertToSearchPath(basePackageName);
+    protected void doScan(String basePackageName) {
+        Path basePath = ResourceUtils.convertToSearchPath(basePackageName);
         try {
             Files.walkFileTree(basePath, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
-                    Class<?> clazz = convertToClassResourceIfPossible(path, basePackageName);
-                    if (clazz != null) {
+                    if (ResourceUtils.checkClassResource(path)) {
+                        Class<?> clazz;
+                        try {
+                            clazz = ResourceUtils.convertToClassResource(path);
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
                         registerBeanDefinitionIfPossible(clazz);
                     }
                     return FileVisitResult.CONTINUE;
@@ -55,32 +51,6 @@ public class ClassPathBeanDefinitionScanner {
             });
         } catch (IOException e) {
             throw new BeanDefinitionStoreException("Failed to scan package: " + basePackageName, e);
-        }
-    }
-
-    private Path convertToSearchPath(String packageName) {
-        try {
-            String searchPath = packageName.replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
-            return Paths.get(Objects.requireNonNull(classLoader.getResource(searchPath)).toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Resource not found for package: " + packageName, e);
-        }
-    }
-
-    private Class<?> convertToClassResourceIfPossible(Path path, String packageName) {
-        if (!path.getFileName().toString().endsWith(CLASS_SUFFIX)) {
-            return null;
-        }
-        String className = path
-                .subpath(path.getNameCount() - packageName.split("\\.").length - 1, path.getNameCount())
-                .toString()
-                .replace(File.separatorChar, PACKAGE_SEPARATOR)
-                .replace(CLASS_SUFFIX, "");
-
-        try {
-            return classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            return null;
         }
     }
 
