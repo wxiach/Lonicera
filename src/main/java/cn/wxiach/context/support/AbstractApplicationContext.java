@@ -1,5 +1,6 @@
 package cn.wxiach.context.support;
 
+import cn.wxiach.beans.config.ConfigurableListableBeanFactory;
 import cn.wxiach.beans.support.DefaultListableBeanFactory;
 import cn.wxiach.context.ApplicationContext;
 
@@ -36,7 +37,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     }
 
     public void refresh() {
-        PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessor(getBeanFactory());
+        ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+
+        PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessor(beanFactory);
+
+        beanFactory.preInstantiateSingletons();
     }
 
     public abstract DefaultListableBeanFactory getBeanFactory();

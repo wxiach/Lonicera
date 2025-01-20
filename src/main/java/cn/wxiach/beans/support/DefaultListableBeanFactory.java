@@ -2,9 +2,9 @@ package cn.wxiach.beans.support;
 
 import cn.wxiach.beans.BeanFactoryAware;
 import cn.wxiach.beans.BeansCreateException;
-import cn.wxiach.beans.ListableBeanFactory;
 import cn.wxiach.beans.annotation.Autowired;
 import cn.wxiach.beans.config.BeanDefinition;
+import cn.wxiach.beans.config.ConfigurableListableBeanFactory;
 import cn.wxiach.util.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * @author wxiach 2025/1/8
  */
-public class DefaultListableBeanFactory extends AbstractBeanFactory implements ListableBeanFactory, BeanDefinitionRegistry {
+public class DefaultListableBeanFactory extends AbstractBeanFactory implements ConfigurableListableBeanFactory, BeanDefinitionRegistry {
 
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>(16);
 
@@ -127,5 +127,14 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory implements L
             result.put(beanName, type.cast(this.getBean(beanName)));
         }
         return result;
+    }
+
+    @Override
+    public void preInstantiateSingletons() {
+        beanDefinitionMap.forEach((beanName, beanDefinition) -> {
+            if (beanDefinition.isSingleton()) {
+                getBean(beanName);
+            }
+        });
     }
 }
