@@ -2,7 +2,6 @@ package cn.wxiach.context.annotation;
 
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.support.BeanDefinitionRegistry;
-import cn.wxiach.beans.support.BeanDefinitionUtils;
 import cn.wxiach.util.AnnotationUtils;
 
 import java.lang.annotation.Annotation;
@@ -31,9 +30,7 @@ public class ConfigurationClassBeanDefinitionReader {
             }
         }
 
-        for (Class<?> registrarClass : getImportBeanDefinitionRegistrars(configClass)) {
-            loadBeanDefinitionForRegistrars(registrarClass);
-        }
+        loadBeanDefinitionForRegistrars(configClass);
     }
 
     protected void loadBeanDefinitionForBeanMethod(Method method) {
@@ -41,25 +38,31 @@ public class ConfigurationClassBeanDefinitionReader {
         registry.registerBeanDefinition(method.getName(), beanDefinition);
     }
 
-    protected void loadBeanDefinitionForRegistrars(Class<?> registrarClass) {
-        BeanDefinition beanDefinition = new BeanDefinition(registrarClass);
-        registry.registerBeanDefinition(BeanDefinitionUtils.generateBeanName(registrarClass), beanDefinition);
+    protected void loadBeanDefinitionForRegistrars(Class<?> configClass) {
+        for (ImportBeanDefinitionRegistrar registrar : getImportBeanDefinitionRegistrars(configClass)) {
+            registrar.registerBeanDefinitions(registry);
+        }
     }
 
-    private Class<?>[] getImportBeanDefinitionRegistrars(Class<?> configClass) {
-        LinkedHashSet<Class<?>> registrars = new LinkedHashSet<>();
+    private ImportBeanDefinitionRegistrar[] getImportBeanDefinitionRegistrars(Class<?> configClass) {
+        LinkedHashSet<ImportBeanDefinitionRegistrar> registrars = new LinkedHashSet<>();
         Deque<Annotation> deque = new LinkedList<>(AnnotationUtils.filterAnnotations(configClass.getAnnotations()));
         while (!deque.isEmpty()) {
             Annotation annotation = deque.poll();
             if (annotation instanceof Import) {
                 Arrays.stream(((Import) annotation).value()).forEach(value -> {
                     if (ImportBeanDefinitionRegistrar.class.isAssignableFrom(value)) {
-                        registrars.add(value);
+                        try {
+                            registrars.add((ImportBeanDefinitionRegistrar) value.getConstructor().newInstance());
+                        } catch (Exception e) {
+                            throw new IllegalStateException("Failed to create instance of " + value.getName()
+                                    + " using its default constructor.", e);
+                        }
                     }
                 });
             }
             deque.addAll(AnnotationUtils.filterAnnotations(annotation.annotationType().getAnnotations()));
         }
-        return registrars.toArray(new Class<?>[0]);
+        return registrars.toArray(new ImportBeanDefinitionRegistrar[0]);
     }
 }
