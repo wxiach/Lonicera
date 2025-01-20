@@ -1,6 +1,6 @@
 package cn.wxiach.scope;
 
-import cn.wxiach.context.AnnotationConfigApplicationContext;
+import cn.wxiach.context.annotation.AnnotationConfigApplicationContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

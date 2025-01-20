@@ -1,7 +1,7 @@
 package cn.wxiach.registry;
 
-import cn.wxiach.annotations.Bean;
-import cn.wxiach.annotations.Configuration;
+import cn.wxiach.context.annotation.Bean;
+import cn.wxiach.context.annotation.Configuration;
 
 /**
  * @author wxiach 2025/1/15

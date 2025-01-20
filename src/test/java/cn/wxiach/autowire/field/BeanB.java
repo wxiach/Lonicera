@@ -1,6 +1,6 @@
 package cn.wxiach.autowire.field;
 
-import cn.wxiach.annotations.Component;
+import cn.wxiach.context.annotation.Component;
 
 /**
  * @author wxiach 2025/1/15

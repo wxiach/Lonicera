@@ -1,5 +1,6 @@
 package cn.wxiach.context;
 
+import cn.wxiach.context.annotation.AnnotationConfigApplicationContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
