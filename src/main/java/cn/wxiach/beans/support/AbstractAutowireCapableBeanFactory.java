@@ -5,6 +5,7 @@ import cn.wxiach.beans.BeansCreateException;
 import cn.wxiach.beans.annotation.Autowired;
 import cn.wxiach.beans.config.AutowireCapableBeanFactory;
 import cn.wxiach.beans.config.BeanDefinition;
+import cn.wxiach.beans.config.BeanPostProcessor;
 import cn.wxiach.util.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -29,7 +30,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
 
         populateBean(beanClass, beanInstance);
-        initializeBean(beanInstance);
+        beanInstance = initializeBean(beanName, beanInstance);
         return beanInstance;
     }
 
@@ -81,9 +82,29 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
     }
 
-    private void initializeBean(Object beanInstance) {
+    private Object initializeBean(String beanName,Object beanInstance) {
         if (beanInstance instanceof BeanFactoryAware) {
             ((BeanFactoryAware) beanInstance).setBeanFactory(this);
         }
+
+        Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(beanInstance, beanName);
+
+        return applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
+    }
+
+    @Override
+    public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) {
+        for (BeanPostProcessor processor : getBeanPostProcessors()) {
+            existingBean = processor.postProcessBeforeInitialization(existingBean, beanName);
+        }
+        return existingBean;
+    }
+
+    @Override
+    public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) {
+        for (BeanPostProcessor processor : getBeanPostProcessors()) {
+            existingBean = processor.postProcessAfterInitialization(existingBean, beanName);
+        }
+        return existingBean;
     }
 }

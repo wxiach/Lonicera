@@ -41,6 +41,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
         PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessor(beanFactory);
 
+        PostProcessorRegistrationDelegate.registerBeanPostProcessor(beanFactory);
+
         beanFactory.preInstantiateSingletons();
     }
 

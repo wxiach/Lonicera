@@ -1,14 +1,20 @@
 package cn.wxiach.beans.support;
 
-import cn.wxiach.beans.BeanFactory;
 import cn.wxiach.beans.BeansException;
 import cn.wxiach.beans.NoSuchBeanDefinitionException;
 import cn.wxiach.beans.config.BeanDefinition;
+import cn.wxiach.beans.config.BeanPostProcessor;
+import cn.wxiach.beans.config.ConfigurableBeanFactory;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author wxiach 2025/1/8
  */
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory {
+public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+
+    private final List<BeanPostProcessor> beanPostProcessors = new LinkedList<>();
 
     @Override
     public Object getBean(String name) {
@@ -39,6 +45,15 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             throw new BeansException("Bean with name '" + name + "' is not of required type " + requiredType.getName());
         }
         return (T) beanInstance;
+    }
+
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        this.beanPostProcessors.add(beanPostProcessor);
+    }
+
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return this.beanPostProcessors;
     }
 
     private String transformedBeanName(String name) {

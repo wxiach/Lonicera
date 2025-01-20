@@ -2,6 +2,8 @@ package cn.wxiach.context.support;
 
 import cn.wxiach.beans.ListableBeanFactory;
 import cn.wxiach.beans.config.BeanFactoryPostProcessor;
+import cn.wxiach.beans.config.BeanPostProcessor;
+import cn.wxiach.beans.config.ConfigurableListableBeanFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,9 +23,18 @@ public final class PostProcessorRegistrationDelegate {
         invokeBeanFactoryPostProcessor(beanFactory, postProcessors);
     }
 
-    private static void invokeBeanFactoryPostProcessor(ListableBeanFactory beanFactory, Collection<? extends BeanFactoryPostProcessor> postProcessors) {
+    private static void invokeBeanFactoryPostProcessor(
+            ListableBeanFactory beanFactory, Collection<? extends BeanFactoryPostProcessor> postProcessors) {
+
         for (BeanFactoryPostProcessor postProcessor : postProcessors) {
             postProcessor.postProcessBeanFactory(beanFactory);
+        }
+    }
+
+    public static void registerBeanPostProcessor(ConfigurableListableBeanFactory beanFactory) {
+        String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class);
+        for (String postProcessorName : postProcessorNames) {
+            beanFactory.addBeanPostProcessor(((BeanPostProcessor) beanFactory.getBean(postProcessorName)));
         }
     }
 }
