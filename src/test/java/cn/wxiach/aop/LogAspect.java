@@ -11,7 +11,7 @@ import org.aspectj.lang.annotation.Before;
 @Component
 public class LogAspect {
 
-    @Before("")
+    @Before("execution(void cn.wxiach.aop.User.say())")
     public void beforeLog() {
         System.out.println("=================before log===============");
     }

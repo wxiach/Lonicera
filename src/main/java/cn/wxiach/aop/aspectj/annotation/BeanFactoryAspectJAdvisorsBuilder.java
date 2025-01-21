@@ -45,7 +45,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
             if (method.isAnnotationPresent(Before.class)) {
                 Before before = method.getAnnotation(Before.class);
                 AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut(before.value());
-                AspectJBeforeAdvice advice = new AspectJBeforeAdvice(method, pointcut);
+                AspectJBeforeAdvice advice = new AspectJBeforeAdvice(method);
                 DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, advice);
                 advisors.add(advisor);
             }

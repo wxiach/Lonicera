@@ -11,8 +11,8 @@ import java.lang.reflect.Method;
  */
 public class AspectJBeforeAdvice extends AbstractAspectJAdvice implements MethodInterceptor {
 
-    public AspectJBeforeAdvice(Method method, AspectJExpressionPointcut pointcut) {
-        super(method, pointcut);
+    public AspectJBeforeAdvice(Method method) {
+        super(method);
     }
 
     @Override

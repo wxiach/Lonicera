@@ -35,7 +35,7 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     protected abstract Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass);
 
     protected Object createProxy(Object bean) {
-        return null;
+        return bean;
     }
 
 
