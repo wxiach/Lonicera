@@ -1,6 +1,9 @@
 # Gradle build folder
 /build/
 
+# Gradle .gradle folder
+.gradle
+
 # Maven build folder
 /target/
 
