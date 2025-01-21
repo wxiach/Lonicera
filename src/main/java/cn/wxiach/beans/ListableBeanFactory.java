@@ -9,6 +9,8 @@ public interface ListableBeanFactory extends BeanFactory {
 
     boolean containsBeanDefinition(String beanName);
 
+    String[] getBeanDefinitionNames();
+
     String[] getBeanNamesForType(Class<?> type);
 
     <T> Map<String, T> getBeansOfType(Class<T> type) throws Exception;

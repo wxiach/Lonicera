@@ -1,5 +1,6 @@
 package cn.wxiach.aop.config;
 
+import cn.wxiach.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.support.BeanDefinitionRegistry;
 

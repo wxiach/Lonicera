@@ -1,5 +1,6 @@
 package cn.wxiach.beans.support;
 
+import cn.wxiach.beans.NoSuchBeanDefinitionException;
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.config.ConfigurableListableBeanFactory;
 
@@ -22,8 +23,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     }
 
     @Override
-    public BeanDefinition getBeanDefinition(String beanName) {
-        return beanDefinitionMap.get(beanName);
+    public BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+        BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
+        if (beanDefinition == null) {
+            throw new NoSuchBeanDefinitionException("No such bean: " + beanName);
+        }
+        return beanDefinition;
     }
 
     @Override

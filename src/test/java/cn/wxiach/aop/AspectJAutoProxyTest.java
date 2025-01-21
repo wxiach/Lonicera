@@ -14,7 +14,7 @@ public class AspectJAutoProxyTest {
 
     @BeforeEach
     public void init() {
-        context = new AnnotationConfigApplicationContext(BeanA.class);
+        context = new AnnotationConfigApplicationContext(AppConfig.class);
     }
 
     @Test

@@ -36,6 +36,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         return getBeanFactory().getBeanNamesForType(type);
     }
 
+    @Override
+    public Class<?> getType(String name) {
+        return getBeanFactory().getType(name);
+    }
+
     public void refresh() {
         ConfigurableListableBeanFactory beanFactory = getBeanFactory();
 

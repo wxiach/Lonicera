@@ -14,6 +14,8 @@ repositories {
 dependencies {
     implementation 'cglib:cglib:3.3.0'
     implementation 'org.ow2.asm:asm:9.7.1'
+    implementation 'org.aspectj:aspectjweaver:1.9.9'
+    implementation 'aopalliance:aopalliance:1.0'
 
     // JUnit Jupiter dependencies for testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'

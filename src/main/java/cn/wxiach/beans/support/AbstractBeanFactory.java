@@ -26,6 +26,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         return this.doGetBean(name, requiredType);
     }
 
+    @Override
+    public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
+        return getBeanDefinition(name).getBeanClass();
+    }
+
     @SuppressWarnings("unchecked")
     protected <T> T doGetBean(String name, Class<T> requiredType) {
         String beanName = transformedBeanName(name);
@@ -60,7 +65,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         return name;
     }
 
-    protected abstract BeanDefinition getBeanDefinition(String beanName);
+    protected abstract BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
     protected abstract Object createBean(String beanName, BeanDefinition beanDefinition);
 }
