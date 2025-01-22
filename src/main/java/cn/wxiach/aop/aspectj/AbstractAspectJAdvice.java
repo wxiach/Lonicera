@@ -2,6 +2,7 @@ package cn.wxiach.aop.aspectj;
 
 import org.aopalliance.aop.Advice;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -9,9 +10,17 @@ import java.lang.reflect.Method;
  */
 public abstract class AbstractAspectJAdvice implements Advice {
 
-    private Method method;
+    private final Method aspectJAdviceMethod;
 
-    public AbstractAspectJAdvice(Method method) {
-        this.method = method;
+    private final AspectInstanceFactory aspectInstanceFactory;
+
+    public AbstractAspectJAdvice(Method aspectJAdviceMethod, AspectInstanceFactory aspectInstanceFactory) {
+        this.aspectJAdviceMethod = aspectJAdviceMethod;
+        this.aspectInstanceFactory = aspectInstanceFactory;
+    }
+
+    protected void invokeAdviceMethod() throws InvocationTargetException, IllegalAccessException {
+        Object aspectInstance = aspectInstanceFactory.getAspectInstance();
+        aspectJAdviceMethod.invoke(aspectInstance);
     }
 }

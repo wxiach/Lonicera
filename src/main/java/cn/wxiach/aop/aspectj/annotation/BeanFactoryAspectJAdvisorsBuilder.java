@@ -1,6 +1,7 @@
 package cn.wxiach.aop.aspectj.annotation;
 
 import cn.wxiach.aop.Advisor;
+import cn.wxiach.aop.aspectj.AspectInstanceFactory;
 import cn.wxiach.aop.aspectj.AspectJBeforeAdvice;
 import cn.wxiach.aop.support.DefaultPointcutAdvisor;
 import cn.wxiach.aop.aspectj.AspectJExpressionPointcut;
@@ -45,7 +46,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
             if (method.isAnnotationPresent(Before.class)) {
                 Before before = method.getAnnotation(Before.class);
                 AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut(before.value());
-                AspectJBeforeAdvice advice = new AspectJBeforeAdvice(method);
+                AspectJBeforeAdvice advice = new AspectJBeforeAdvice(method, new AspectInstanceFactory(aspectClass));
                 DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, advice);
                 advisors.add(advisor);
             }

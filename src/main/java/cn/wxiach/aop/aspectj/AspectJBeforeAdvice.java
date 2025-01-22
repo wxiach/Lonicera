@@ -10,12 +10,13 @@ import java.lang.reflect.Method;
  */
 public class AspectJBeforeAdvice extends AbstractAspectJAdvice implements MethodInterceptor {
 
-    public AspectJBeforeAdvice(Method method) {
-        super(method);
+    public AspectJBeforeAdvice(Method aspectJAdviceMethod, AspectInstanceFactory aspectInstanceFactory) {
+        super(aspectJAdviceMethod, aspectInstanceFactory);
     }
 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        return null;
+        invokeAdviceMethod();
+        return methodInvocation.proceed();
     }
 }
