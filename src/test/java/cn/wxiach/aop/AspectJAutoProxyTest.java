@@ -19,7 +19,7 @@ public class AspectJAutoProxyTest {
 
     @Test
     public void testEnableAspectJAutoProxy() {
-        User user = context.getBean("user", User.class);
-        user.say();
+        User bob = context.getBean("bob", User.class);
+        bob.say();
     }
 }

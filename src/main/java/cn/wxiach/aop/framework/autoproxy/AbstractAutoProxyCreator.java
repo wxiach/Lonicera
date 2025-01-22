@@ -1,16 +1,18 @@
 package cn.wxiach.aop.framework.autoproxy;
 
+import cn.wxiach.aop.Advisor;
+import cn.wxiach.aop.framework.ProxyFactory;
 import cn.wxiach.beans.BeanFactory;
 import cn.wxiach.beans.BeanFactoryAware;
 import cn.wxiach.beans.BeansException;
 import cn.wxiach.beans.config.BeanPostProcessor;
 
+import java.util.List;
+
 /**
  * @author wxiach 2025/1/20
  */
 public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, BeanFactoryAware {
-
-    protected static final Object[] DO_NOT_PROXY = null;
 
     private BeanFactory beanFactory;
 
@@ -25,19 +27,18 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     }
 
     protected Object wrapIfNecessary(Object bean, String beanName) {
-        Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass());
-        if(specificInterceptors != DO_NOT_PROXY) {
-            return createProxy(bean);
+        List<Advisor> advisors = getAdvicesAndAdvisorsForBean(bean.getClass());
+        if (!advisors.isEmpty()) {
+            return createProxy(bean.getClass(), advisors, bean);
         }
         return bean;
     }
 
-    protected abstract Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass);
+    protected abstract List<Advisor> getAdvicesAndAdvisorsForBean(Class<?> beanClass);
 
-    protected Object createProxy(Object bean) {
-        return bean;
+    private Object createProxy(Class<?> targetClass, List<Advisor> advisors, Object target) {
+        ProxyFactory proxyFactory = new ProxyFactory(target, advisors, targetClass.getInterfaces());
+        return proxyFactory.getProxy();
     }
-
-
 
 }

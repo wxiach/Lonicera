@@ -1,8 +1,8 @@
 package cn.wxiach.aop.aspectj.annotation;
 
 import cn.wxiach.aop.Advisor;
-import cn.wxiach.aop.AspectJBeforeAdvice;
-import cn.wxiach.aop.DefaultPointcutAdvisor;
+import cn.wxiach.aop.aspectj.AspectJBeforeAdvice;
+import cn.wxiach.aop.support.DefaultPointcutAdvisor;
 import cn.wxiach.aop.aspectj.AspectJExpressionPointcut;
 import cn.wxiach.beans.ListableBeanFactory;
 import org.aspectj.lang.annotation.Aspect;

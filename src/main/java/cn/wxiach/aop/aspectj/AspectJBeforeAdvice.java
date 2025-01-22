@@ -1,6 +1,5 @@
-package cn.wxiach.aop;
+package cn.wxiach.aop.aspectj;
 
-import cn.wxiach.aop.aspectj.AspectJExpressionPointcut;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 

@@ -1,4 +1,4 @@
-package cn.wxiach.aop;
+package cn.wxiach.aop.aspectj;
 
 import org.aopalliance.aop.Advice;
 
