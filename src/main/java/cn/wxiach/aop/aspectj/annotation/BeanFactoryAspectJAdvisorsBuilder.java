@@ -1,17 +1,18 @@
 package cn.wxiach.aop.aspectj.annotation;
 
 import cn.wxiach.aop.Advisor;
-import cn.wxiach.aop.aspectj.AspectInstanceFactory;
-import cn.wxiach.aop.aspectj.AspectJBeforeAdvice;
+import cn.wxiach.aop.Pointcut;
+import cn.wxiach.aop.aspectj.*;
 import cn.wxiach.aop.support.DefaultPointcutAdvisor;
-import cn.wxiach.aop.aspectj.AspectJExpressionPointcut;
 import cn.wxiach.beans.ListableBeanFactory;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wxiach 2025/1/21
@@ -43,15 +44,82 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 
         Method[] candidateMethods = aspectClass.getDeclaredMethods();
         for (Method method : candidateMethods) {
-            if (method.isAnnotationPresent(Before.class)) {
-                Before before = method.getAnnotation(Before.class);
-                AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut(before.value());
-                AspectJBeforeAdvice advice = new AspectJBeforeAdvice(method, new AspectInstanceFactory(aspectClass));
-                DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, advice);
-                advisors.add(advisor);
+            for (Annotation annotation : method.getAnnotations()) {
+                AspectJAdvisorStrategy strategy = AspectJAdvisorContext.getStrategy(annotation.annotationType());
+                if (strategy != null) {
+                    advisors.add(strategy.createAdvisor(annotation, method, new AspectInstanceFactory(aspectClass)));
+                }
             }
         }
 
         return advisors;
     }
+
+    private static class AspectJAdvisorContext {
+        private static final Map<Class<? extends Annotation>, AspectJAdvisorStrategy> strategies = new HashMap<>();
+
+        static {
+            strategies.put(Before.class, new BeforeAdvisorStrategy());
+            strategies.put(After.class, new AfterAdvisorStrategy());
+            strategies.put(Around.class, new AroundAdvisorStrategy());
+            strategies.put(AfterReturning.class, new AfterReturningAdvisorStrategy());
+            strategies.put(AfterThrowing.class, new AfterThrowingAdvisorStrategy());
+        }
+
+        public static AspectJAdvisorStrategy getStrategy(Class<? extends Annotation> annotationType) {
+            return strategies.get(annotationType);
+        }
+    }
+
+    private interface AspectJAdvisorStrategy {
+        DefaultPointcutAdvisor createAdvisor(Annotation annotation, Method method, AspectInstanceFactory instanceFactory);
+    }
+
+    private static class BeforeAdvisorStrategy implements AspectJAdvisorStrategy {
+        @Override
+        public DefaultPointcutAdvisor createAdvisor(Annotation annotation, Method method, AspectInstanceFactory instanceFactory) {
+            Pointcut pointcut = new AspectJExpressionPointcut(((Before)annotation).value());
+            AbstractAspectJAdvice advice = new AspectJBeforeAdvice(method, instanceFactory);
+            return new DefaultPointcutAdvisor(pointcut, advice);
+        }
+    }
+
+    private static class AfterAdvisorStrategy implements AspectJAdvisorStrategy {
+        @Override
+        public DefaultPointcutAdvisor createAdvisor(Annotation annotation, Method method, AspectInstanceFactory instanceFactory) {
+            Pointcut pointcut = new AspectJExpressionPointcut(((After)annotation).value());
+            AbstractAspectJAdvice advice = new AspectJAfterAdvice(method, instanceFactory);
+            return new DefaultPointcutAdvisor(pointcut, advice);
+        }
+    }
+
+    private static class AroundAdvisorStrategy implements AspectJAdvisorStrategy {
+        @Override
+        public DefaultPointcutAdvisor createAdvisor(Annotation annotation, Method method, AspectInstanceFactory instanceFactory) {
+            Pointcut pointcut = new AspectJExpressionPointcut(((Around)annotation).value());
+            AbstractAspectJAdvice advice = new AspectJAroundAdvice(method, instanceFactory);
+            return new DefaultPointcutAdvisor(pointcut, advice);
+        }
+    }
+
+    private static class AfterReturningAdvisorStrategy implements AspectJAdvisorStrategy {
+        @Override
+        public DefaultPointcutAdvisor createAdvisor(Annotation annotation, Method method, AspectInstanceFactory instanceFactory) {
+            Pointcut pointcut = new AspectJExpressionPointcut(((AfterReturning)annotation).value());
+            AbstractAspectJAdvice advice = new AspectJAfterReturningAdvice(method, instanceFactory);
+            advice.setReturningName(((AfterReturning)annotation).returning());
+            return new DefaultPointcutAdvisor(pointcut, advice);
+        }
+    }
+
+    private static class AfterThrowingAdvisorStrategy implements AspectJAdvisorStrategy {
+        @Override
+        public DefaultPointcutAdvisor createAdvisor(Annotation annotation, Method method, AspectInstanceFactory instanceFactory) {
+            Pointcut pointcut = new AspectJExpressionPointcut(((AfterThrowing)annotation).value());
+            AbstractAspectJAdvice advice = new AspectJAfterThrowingAdvice(method, instanceFactory);
+            advice.setThrowingName(((AfterThrowing)annotation).throwing());
+            return new DefaultPointcutAdvisor(pointcut, advice);
+        }
+    }
+
 }

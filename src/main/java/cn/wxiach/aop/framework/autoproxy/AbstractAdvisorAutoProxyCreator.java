@@ -47,6 +47,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
                 for (Method method : beanClass.getDeclaredMethods()) {
                     if (expression.matches(method, beanClass)) {
                         eligibleAdvisors.add(advisor);
+                        break;
                     }
                 }
             }

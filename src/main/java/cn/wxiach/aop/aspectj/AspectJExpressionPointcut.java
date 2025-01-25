@@ -65,7 +65,7 @@ public class AspectJExpressionPointcut implements Pointcut {
             return true;
         }
 
-        if ("..".equals(target)) {
+        if ("..".equals(pattern)) {
             return true;
         }
 

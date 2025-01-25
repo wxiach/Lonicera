@@ -1,8 +1,9 @@
 package cn.wxiach.aop.framework;
 
 import cn.wxiach.aop.Advisor;
+import cn.wxiach.aop.PointcutAdvisor;
+import cn.wxiach.aop.aspectj.AspectJExpressionPointcut;
 import cn.wxiach.util.ClassUtils;
-import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -30,18 +31,18 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        List<MethodInterceptor> chain = getMethodInterceptors();
-        MethodInvocation invocation = new ReflectiveMethodInvocation(advised.getTarget(), method, args, chain);
+        List<MethodInterceptor> chain = getMethodInterceptors(method, advised.getTarget().getClass());
+        MethodInvocation invocation = new ReflectiveMethodInvocation(proxy, advised.getTarget(), method, args, chain);
         return invocation.proceed();
     }
 
-    private List<MethodInterceptor> getMethodInterceptors() {
+    private List<MethodInterceptor> getMethodInterceptors(Method method, Class<?> targetClass) {
         List<MethodInterceptor> interceptors = new ArrayList<>();
 
         for (Advisor advisor : advised.getAdvisors()) {
-            Advice advice = advisor.getAdvice();
-            if (advice instanceof MethodInterceptor) {
-                interceptors.add((MethodInterceptor) advice);
+            PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
+            if (((AspectJExpressionPointcut) pointcutAdvisor.getPointcut()).matches(method, targetClass)) {
+                interceptors.add((MethodInterceptor) advisor.getAdvice());
             }
         }
 
