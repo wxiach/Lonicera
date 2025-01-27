@@ -17,11 +17,6 @@ public class CustomAspect {
         System.out.println("Before method: " + point.getSignature());
     }
 
-    @After("execution(* cn.wxiach.aop.jdk.Bob.*(..))")
-    public void afterAdvice(JoinPoint point) {
-        System.out.println("After method: " + point.getSignature());
-    }
-
     @Around("execution(* cn.wxiach.aop.jdk.Bob.*(..))")
     public Object aroundAdvice(ProceedingJoinPoint point) throws Throwable {
         System.out.println("Around method: " + point.getSignature());
@@ -40,4 +35,8 @@ public class CustomAspect {
         System.out.println("AfterThrowing method with ex [ " + ex + "] ");
     }
 
+    @After("execution(* cn.wxiach.aop.jdk.Bob.*(..))")
+    public void afterAdvice(JoinPoint point) {
+        System.out.println("After method: " + point.getSignature());
+    }
 }

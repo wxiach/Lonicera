@@ -9,12 +9,7 @@ import cn.wxiach.context.annotation.Component;
 public class Bob implements People {
 
     @Override
-    public void doSomething() {
-        System.out.println("Doing something...");
-    }
-
-    @Override
-    public String doSomethingElse(String input) {
+    public String doSomething(String input) {
         if (input == null) {
             throw new IllegalArgumentException("Input cannot be null");
         }

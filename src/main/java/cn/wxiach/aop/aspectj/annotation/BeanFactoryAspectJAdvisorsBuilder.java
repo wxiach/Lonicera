@@ -9,17 +9,26 @@ import org.aspectj.lang.annotation.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author wxiach 2025/1/21
  */
 public class BeanFactoryAspectJAdvisorsBuilder {
 
+    private final static List<Class<? extends Annotation>> ANNOTATION_ORDER=
+            Arrays.asList(Around.class, Before.class, After.class, AfterReturning.class, AfterThrowing.class);
+
     private final ListableBeanFactory beanFactory;
+
+    public static int getAnnotationOrder(Method method) {
+        for (int i = 0; i < ANNOTATION_ORDER.size(); i++) {
+            if (method.isAnnotationPresent(ANNOTATION_ORDER.get(i))) {
+                return i;
+            }
+        }
+        return ANNOTATION_ORDER.size();
+    }
 
     public BeanFactoryAspectJAdvisorsBuilder(ListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
@@ -41,9 +50,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 
     private List<Advisor> getAdvisors(Class<?> aspectClass) {
         List<Advisor> advisors = new ArrayList<>();
-
-        Method[] candidateMethods = aspectClass.getDeclaredMethods();
-        for (Method method : candidateMethods) {
+        for (Method method : getAdvisorMethods(aspectClass)) {
             for (Annotation annotation : method.getAnnotations()) {
                 AspectJAdvisorStrategy strategy = AspectJAdvisorContext.getStrategy(annotation.annotationType());
                 if (strategy != null) {
@@ -51,8 +58,16 @@ public class BeanFactoryAspectJAdvisorsBuilder {
                 }
             }
         }
-
         return advisors;
+    }
+
+    private List<Method> getAdvisorMethods(Class<?> aspectClass) {
+        List<Method> methods = Arrays.asList(aspectClass.getDeclaredMethods());
+        methods.sort(
+                Comparator.comparingInt(BeanFactoryAspectJAdvisorsBuilder::getAnnotationOrder)
+                        .thenComparing(Method::getName)
+        );
+        return methods;
     }
 
     private static class AspectJAdvisorContext {
