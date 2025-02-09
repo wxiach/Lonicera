@@ -1,4 +1,4 @@
-package cn.wxiach.util;
+package cn.wxiach.core.util;
 
 import java.io.File;
 import java.net.URISyntaxException;

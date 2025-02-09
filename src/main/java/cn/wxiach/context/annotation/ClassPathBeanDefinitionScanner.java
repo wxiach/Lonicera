@@ -4,9 +4,10 @@ import cn.wxiach.beans.BeanDefinitionStoreException;
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.support.BeanDefinitionRegistry;
 import cn.wxiach.beans.support.BeanDefinitionUtils;
-import cn.wxiach.util.AnnotationUtils;
-import cn.wxiach.util.ResourceUtils;
-import cn.wxiach.util.StringUtils;
+import cn.wxiach.core.annotation.AnnotationMetadata;
+import cn.wxiach.core.annotation.AnnotationMetadataReader;
+import cn.wxiach.core.util.ResourceUtils;
+import cn.wxiach.core.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -57,17 +58,21 @@ public class ClassPathBeanDefinitionScanner {
     private void registerBeanDefinitionIfPossible(Class<?> beanClass) {
         BeanDefinition beanDefinition = new BeanDefinition(beanClass);
 
-        // parse @Component
-        Component component = AnnotationUtils.findAnnotation(beanClass, Component.class);
-        if (component == null) return;
+        AnnotationMetadata metadata = AnnotationMetadataReader.getAnnotationMetadata(beanClass);
 
-        String beanName = BeanDefinitionUtils.generateBeanName(beanClass, component);
+        // Register only bean annotated with @Component
+        if (!metadata.hasAnnotation(Component.class)) return;
+
+        String beanName = BeanDefinitionUtils.generateBeanName(beanClass, metadata.findAnnotation(Component.class));
+
         if (registry.containsBeanDefinition(beanName)) return;
 
-        // parse @Scope
-        Scope scope = AnnotationUtils.findAnnotation(beanClass, Scope.class);
-        if (scope != null && StringUtils.hasText(scope.value())) {
-            beanDefinition.setScope(scope.value());
+        // Parse @Scope
+        if (metadata.hasAnnotation(Scope.class)) {
+            Scope scope = metadata.findAnnotation(Scope.class);
+            if (StringUtils.hasText(scope.value())) {
+                beanDefinition.setScope(scope.value());
+            }
         }
 
         this.registry.registerBeanDefinition(beanName, beanDefinition);

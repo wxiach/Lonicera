@@ -2,9 +2,9 @@ package cn.wxiach.context.annotation;
 
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.support.BeanDefinitionRegistry;
-import cn.wxiach.util.AnnotationUtils;
+import cn.wxiach.core.annotation.AnnotationMetadata;
+import cn.wxiach.core.annotation.AnnotationMetadataReader;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -46,23 +46,23 @@ public class ConfigurationClassBeanDefinitionReader {
 
     private ImportBeanDefinitionRegistrar[] getImportBeanDefinitionRegistrars(Class<?> configClass) {
         LinkedHashSet<ImportBeanDefinitionRegistrar> registrars = new LinkedHashSet<>();
-        Deque<Annotation> deque = new LinkedList<>(AnnotationUtils.filterAnnotations(configClass.getAnnotations()));
-        while (!deque.isEmpty()) {
-            Annotation annotation = deque.poll();
-            if (annotation instanceof Import) {
-                Arrays.stream(((Import) annotation).value()).forEach(value -> {
-                    if (ImportBeanDefinitionRegistrar.class.isAssignableFrom(value)) {
-                        try {
-                            registrars.add((ImportBeanDefinitionRegistrar) value.getConstructor().newInstance());
-                        } catch (Exception e) {
-                            throw new IllegalStateException("Failed to create instance of " + value.getName()
-                                    + " using its default constructor.", e);
-                        }
-                    }
-                });
-            }
-            deque.addAll(AnnotationUtils.filterAnnotations(annotation.annotationType().getAnnotations()));
+        AnnotationMetadata metadata = AnnotationMetadataReader.getAnnotationMetadata(configClass);
+        for (Import annotation : metadata.findAnnotations(Import.class)) {
+            Arrays.stream(annotation.value()).forEach(value -> {
+                if (ImportBeanDefinitionRegistrar.class.isAssignableFrom(value)) {
+                    registrars.add(instantiateRegistrar(value));
+                }
+            });
         }
         return registrars.toArray(new ImportBeanDefinitionRegistrar[0]);
+    }
+
+    private ImportBeanDefinitionRegistrar instantiateRegistrar(Class<?> registrarClass) {
+        try {
+            return (ImportBeanDefinitionRegistrar) registrarClass.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Failed to create instance of " + registrarClass.getName() + " using its default constructor.", e);
+        }
     }
 }

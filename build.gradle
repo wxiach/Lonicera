@@ -26,7 +26,9 @@ test {
     useJUnitPlatform()
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-    options.compilerArgs << "-parameters"
+tasks.withType(JavaCompile).configureEach { task ->
+    task.options.encoding = 'UTF-8'
+    task.options.compilerArgs << "-parameters"
 }
+
+

@@ -1,4 +1,4 @@
-package cn.wxiach.util;
+package cn.wxiach.core.util;
 
 /**
  * @author wxiach 2025/1/11

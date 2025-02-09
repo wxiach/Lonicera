@@ -2,7 +2,7 @@ package cn.wxiach.context.annotation;
 
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.support.BeanDefinitionRegistry;
-import cn.wxiach.util.StringUtils;
+import cn.wxiach.core.util.StringUtils;
 
 import java.util.List;
 

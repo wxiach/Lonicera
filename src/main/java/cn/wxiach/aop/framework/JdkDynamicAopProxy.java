@@ -3,7 +3,7 @@ package cn.wxiach.aop.framework;
 import cn.wxiach.aop.Advisor;
 import cn.wxiach.aop.PointcutAdvisor;
 import cn.wxiach.aop.aspectj.AspectJExpressionPointcut;
-import cn.wxiach.util.ClassUtils;
+import cn.wxiach.core.util.ClassUtils;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 

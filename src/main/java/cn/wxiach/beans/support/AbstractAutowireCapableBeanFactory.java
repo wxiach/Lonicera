@@ -6,7 +6,7 @@ import cn.wxiach.beans.annotation.Autowired;
 import cn.wxiach.beans.config.AutowireCapableBeanFactory;
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.config.BeanPostProcessor;
-import cn.wxiach.util.StringUtils;
+import cn.wxiach.core.util.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

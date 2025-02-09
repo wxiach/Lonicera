@@ -1,7 +1,7 @@
 package cn.wxiach.beans.support;
 
 import cn.wxiach.context.annotation.Component;
-import cn.wxiach.util.StringUtils;
+import cn.wxiach.core.util.StringUtils;
 
 import java.beans.Introspector;
 import java.lang.annotation.Annotation;
