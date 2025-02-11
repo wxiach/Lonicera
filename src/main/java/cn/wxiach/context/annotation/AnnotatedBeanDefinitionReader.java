@@ -20,6 +20,4 @@ public class AnnotatedBeanDefinitionReader {
         BeanDefinition beanDefinition = new BeanDefinition(beanClass);
         registry.registerBeanDefinition(BeanDefinitionUtils.generateBeanName(beanClass), beanDefinition);
     }
-
-
 }

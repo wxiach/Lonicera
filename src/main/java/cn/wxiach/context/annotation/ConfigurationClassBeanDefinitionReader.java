@@ -23,7 +23,6 @@ public class ConfigurationClassBeanDefinitionReader {
     }
 
     protected void loadBeanDefinitionsForConfigurationClass(Class<?> configClass) {
-
         for (Method method : configClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(Bean.class)) {
                 loadBeanDefinitionForBeanMethod(method);

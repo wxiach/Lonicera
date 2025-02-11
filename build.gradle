@@ -12,10 +12,16 @@ repositories {
 }
 
 dependencies {
+    // AOP
     implementation 'cglib:cglib:3.3.0'
     implementation 'org.ow2.asm:asm:9.7.1'
-    implementation 'org.aspectj:aspectjweaver:1.9.9'
-    implementation 'aopalliance:aopalliance:1.0'
+    implementation 'org.aspectj:aspectjweaver:1.9.9' // AspectJ Annotation
+    implementation 'aopalliance:aopalliance:1.0' // AOP API
+
+    // Log
+    implementation 'org.slf4j:slf4j-api:2.0.16'
+    implementation 'ch.qos.logback:logback-core:1.5.16'
+    implementation 'ch.qos.logback:logback-classic:1.5.16'
 
     // JUnit Jupiter dependencies for testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
