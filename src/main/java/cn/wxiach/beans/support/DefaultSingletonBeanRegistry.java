@@ -23,9 +23,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     // Store the singleton object, which is in creation
     private final Set<String> singletonsCurrentlyInCreation = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
-    // Store the singleton object, which has been aop early
-    private final Map<Object, Object> earlyProxyReferences = new ConcurrentHashMap<>(16);
-
     private void addSingleton(String beanName, Object singletonObject) {
         this.singletonObjects.put(beanName, singletonObject);
         this.earlySingletonObjects.remove(beanName);
