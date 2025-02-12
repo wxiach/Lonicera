@@ -1,4 +1,4 @@
-package cn.wxiach.autowire.field;
+package cn.wxiach.autowire.field.normal;
 
 import cn.wxiach.beans.annotation.Autowired;
 import cn.wxiach.context.annotation.Component;
@@ -7,11 +7,11 @@ import cn.wxiach.context.annotation.Component;
  * @author wxiach 2025/1/15
  */
 @Component
-public class BeanC {
+public class BeanA {
     @Autowired
-    private BeanD beanD;
+    private BeanB beanB;
 
-    public BeanD getBeanD() {
-        return beanD;
+    public BeanB getBeanB() {
+        return beanB;
     }
 }

@@ -2,10 +2,12 @@ package cn.wxiach.beans.support;
 
 import cn.wxiach.beans.BeanFactoryAware;
 import cn.wxiach.beans.BeansCreateException;
+import cn.wxiach.beans.BeansException;
 import cn.wxiach.beans.annotation.Autowired;
 import cn.wxiach.beans.config.AutowireCapableBeanFactory;
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.config.BeanPostProcessor;
+import cn.wxiach.beans.config.InstantiationAwareBeanPostProcessor;
 import cn.wxiach.core.util.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -25,13 +27,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         Class<?> beanClass = beanDefinition.getBeanClass();
         Object beanInstance = this.createBeanInstance(beanClass);
 
+        // Early expose the singleton object to resolve circular dependency
         if (beanDefinition.isSingleton() && this.isSingletonCurrentlyInCreation(beanName)) {
-            this.addEarlySingletonObjects(beanName, beanInstance);
+            this.addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, beanDefinition, beanInstance));
         }
 
+        Object exposedObject = beanInstance;
         populateBean(beanClass, beanInstance);
-        beanInstance = initializeBean(beanName, beanInstance);
-        return beanInstance;
+        exposedObject = initializeBean(beanName, exposedObject);
+        return exposedObject;
     }
 
     private Object createBeanInstance(Class<?> beanClass) {
@@ -75,14 +79,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 try {
                     field.set(beanInstance, bean);
                 } catch (IllegalAccessException e) {
-                    throw new BeansCreateException("Failed to inject dependency into field "
-                            + field.getName() + " of bean " + beanClass.getName(), e);
+                    throw new BeansCreateException(
+                            "Failed to inject dependency into field " + field.getName() + " of bean " + beanClass.getName(), e);
                 }
             }
         }
     }
 
-    private Object initializeBean(String beanName,Object beanInstance) {
+    private Object initializeBean(String beanName, Object beanInstance) {
         if (beanInstance instanceof BeanFactoryAware) {
             ((BeanFactoryAware) beanInstance).setBeanFactory(this);
         }
@@ -106,5 +110,24 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             existingBean = processor.postProcessAfterInitialization(existingBean, beanName);
         }
         return existingBean;
+    }
+
+    /**
+     * Obtain a reference for early access to the specified bean,
+     * typically for the purpose of resolving a circular reference.
+     *
+     * @param beanName
+     * @param beanDefinition
+     * @param bean
+     * @return
+     */
+    protected Object getEarlyBeanReference(String beanName, BeanDefinition beanDefinition, Object bean) {
+        Object exposedObject = bean;
+        for (BeanPostProcessor processor : getBeanPostProcessors()) {
+            if (processor instanceof InstantiationAwareBeanPostProcessor) {
+                exposedObject = ((InstantiationAwareBeanPostProcessor) processor).getEarlyBeanReference(exposedObject, beanName);
+            }
+        }
+        return exposedObject;
     }
 }

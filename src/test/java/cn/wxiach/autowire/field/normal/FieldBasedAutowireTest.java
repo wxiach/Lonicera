@@ -1,4 +1,4 @@
-package cn.wxiach.autowire.field;
+package cn.wxiach.autowire.field.normal;
 
 import cn.wxiach.context.annotation.AnnotationConfigApplicationContext;
 import cn.wxiach.context.ApplicationContext;
@@ -15,7 +15,7 @@ public class FieldBasedAutowireTest {
 
     @BeforeEach
     public void init() {
-        context = new AnnotationConfigApplicationContext("cn.wxiach.autowire.field");
+        context = new AnnotationConfigApplicationContext("cn.wxiach.autowire.field.normal");
     }
 
     @Test
@@ -24,9 +24,4 @@ public class FieldBasedAutowireTest {
         Assertions.assertNotNull(beanA.getBeanB());
     }
 
-    @Test
-    public void testCircularDependencyWithFieldInjection() {
-        BeanC beanC = context.getBean("beanC", BeanC.class);
-        Assertions.assertNotNull(beanC.getBeanD());
-    }
 }

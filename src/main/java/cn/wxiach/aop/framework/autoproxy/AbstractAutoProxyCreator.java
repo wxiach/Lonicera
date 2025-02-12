@@ -5,14 +5,18 @@ import cn.wxiach.aop.framework.ProxyFactory;
 import cn.wxiach.beans.BeanFactory;
 import cn.wxiach.beans.BeanFactoryAware;
 import cn.wxiach.beans.BeansException;
-import cn.wxiach.beans.config.BeanPostProcessor;
+import cn.wxiach.beans.config.InstantiationAwareBeanPostProcessor;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author wxiach 2025/1/20
  */
-public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, BeanFactoryAware {
+public abstract class AbstractAutoProxyCreator implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
+
+    private final Map<Object, Object> earlyBeanReferences = new ConcurrentHashMap<>(16);
 
     private BeanFactory beanFactory;
 
@@ -22,8 +26,17 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     }
 
     @Override
+    public Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
+        this.earlyBeanReferences.put(beanName, bean);
+        return this.wrapIfNecessary(bean, beanName);
+    }
+
+    @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return wrapIfNecessary(bean, beanName);
+        if (this.earlyBeanReferences.remove(beanName) != bean) {
+            return wrapIfNecessary(bean, beanName);
+        }
+        return bean;
     }
 
     protected Object wrapIfNecessary(Object bean, String beanName) {

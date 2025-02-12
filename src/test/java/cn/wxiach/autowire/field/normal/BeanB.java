@@ -1,4 +1,4 @@
-package cn.wxiach.autowire.field;
+package cn.wxiach.autowire.field.normal;
 
 import cn.wxiach.context.annotation.Component;
 

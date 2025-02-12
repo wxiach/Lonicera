@@ -19,40 +19,21 @@ public class JdkDynamicAopProxyTest {
         people = context.getBean("bob", People.class);
     }
 
+    /**
+     * Correct advice order: @Around -> @Before ->  @AfterReturning -> @After -> @Around
+     */
     @Test
     public void testAdviceOrder() {
-        System.out.println("\n=====Advice Order With Normal");
         people.doSomething("Bob");
-
-        /**
-         *
-         * Console correct output
-         *
-         * =====Advice Order With Normal
-         * Around method: cn.wxiach.aop.aspectj.MethodInvocationProceedingJoinPoint$TargetMethodSignature@47c4ecdc
-         * Before method: cn.wxiach.aop.aspectj.MethodInvocationProceedingJoinPoint$TargetMethodSignature@42f33b5d
-         * AfterReturning method with result [ Processed: Bob]
-         * After method: cn.wxiach.aop.aspectj.MethodInvocationProceedingJoinPoint$TargetMethodSignature@5c8504fd
-         * Around method: cn.wxiach.aop.aspectj.MethodInvocationProceedingJoinPoint$TargetMethodSignature@47c4ecdc
-         */
     }
 
+    /**
+     * Correct advice order: @Around -> @Before -> @AfterThrowing -> @After
+     */
     @Test
     public void testAdviceOrderWithException() {
-        System.out.println("\n=====Advice Order With Exception");
         try {
             people.doSomething(null);
-        } catch (Exception ignored) {
-        }
-        /**
-         * Console correct output
-         *
-         * =====Advice Order With Exception
-         * Around method: cn.wxiach.aop.aspectj.MethodInvocationProceedingJoinPoint$TargetMethodSignature@18c5069b
-         * Before method: cn.wxiach.aop.aspectj.MethodInvocationProceedingJoinPoint$TargetMethodSignature@3a0d172f
-         * AfterThrowing method with ex [ java.lang.IllegalArgumentException: Input cannot be null]
-         * After method: cn.wxiach.aop.aspectj.MethodInvocationProceedingJoinPoint$TargetMethodSignature@14dda234
-         *
-         */
+        } catch (Exception ignored) {}
     }
 }
