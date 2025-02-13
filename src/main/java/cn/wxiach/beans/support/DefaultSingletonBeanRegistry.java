@@ -35,11 +35,18 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
     @Override
     public Object getSingleton(String beanName) {
+        // First-level cache: Check if the bean is already created.
         Object singletonObject = this.singletonObjects.get(beanName);
+
+        // If not found and the bean is currently being created, check the second-level cache (earlySingletonObjects).
         if (singletonObject == null && this.isSingletonCurrentlyInCreation(beanName)) {
             singletonObject = this.earlySingletonObjects.get(beanName);
+
+            // If still not found, check the third-level cache (singletonFactories) for the bean creation factory.
             if (singletonObject == null) {
                 ObjectFactory<Object> singletonFactory = this.singletonFactories.get(beanName);
+
+                // If a factory exists, create the bean, store it in the second-level cache, and remove the factory.
                 if (singletonFactory != null) {
                     singletonObject = singletonFactory.getObject();
                     this.singletonFactories.remove(beanName);
@@ -47,8 +54,11 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
                 }
             }
         }
+
+        // Return the bean from any of the caches.
         return singletonObject;
     }
+
 
     public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
         beforeSingletonCreation(beanName);

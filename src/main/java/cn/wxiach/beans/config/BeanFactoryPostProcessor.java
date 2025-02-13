@@ -6,5 +6,5 @@ import cn.wxiach.beans.ListableBeanFactory;
  * @author wxiach 2025/1/9
  */
 public interface BeanFactoryPostProcessor {
-    void postProcessBeanFactory(ListableBeanFactory beanFactory);
+    void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory);
 }

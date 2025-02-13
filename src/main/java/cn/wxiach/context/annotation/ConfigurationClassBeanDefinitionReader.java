@@ -28,7 +28,6 @@ public class ConfigurationClassBeanDefinitionReader {
                 loadBeanDefinitionForBeanMethod(method);
             }
         }
-
         loadBeanDefinitionForRegistrars(configClass);
     }
 

@@ -15,45 +15,36 @@ import org.objectweb.asm.Type;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author wxiach 2025/1/13
  */
 public class ConfigurationClassEnhancer {
+
     private static final Callback[] CALLBACKS = new Callback[]{
-            new BeanMethodInterceptor(),
-            new BeanFactoryAwareMethodInterceptor(),
-            NoOp.INSTANCE,
+            new BeanMethodInterceptor(), new BeanFactoryAwareMethodInterceptor(), NoOp.INSTANCE
     };
+
     private static final ConditionalCallbackFilter CALLBACK_FILTER = new ConditionalCallbackFilter(CALLBACKS);
+
     private static final String BEAN_FACTORY_FIELD = "$$beanFactory";
 
-    public void enhance(List<BeanDefinition> configBeanDefs) {
-        configBeanDefs.forEach(this::enhanceConfigurationClass);
-    }
-
-    private void enhanceConfigurationClass(BeanDefinition configBeanDef) {
-        Class<?> configClass = configBeanDef.getBeanClass();
-        Class<?> enhancedConfigClass = this.createClass(this.newEnhancer(configClass));
-        configBeanDef.setBeanClass(enhancedConfigClass);
-    }
-
-    private Enhancer newEnhancer(Class<?> configSuperClass) {
+    public void enhance(BeanDefinition beanDefinition) {
+        // create enhancer
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(configSuperClass);
+        enhancer.setSuperclass(beanDefinition.getBeanClass());
         enhancer.setInterfaces(new Class[]{EnhancedConfiguration.class});
         enhancer.setUseFactory(false);
         enhancer.setStrategy(new BeanFactoryAwareGeneratorStrategy());
         enhancer.setCallbackFilter(CALLBACK_FILTER);
         enhancer.setCallbackTypes(CALLBACK_FILTER.getCallbackTypes());
-        return enhancer;
-    }
 
-    private Class<?> createClass(Enhancer enhancer) {
-        Class<?> subClass = enhancer.createClass();
-        Enhancer.registerStaticCallbacks(subClass, CALLBACKS);
-        return subClass;
+        // create enhanced config class
+        Class<?> enhancedConfigClass = enhancer.createClass();
+        Enhancer.registerStaticCallbacks(enhancedConfigClass, CALLBACKS);
+
+        // update BeanDefinition's class
+        beanDefinition.setBeanClass(enhancedConfigClass);
     }
 
     private static class BeanFactoryAwareMethodInterceptor implements MethodInterceptor, ConditionalCallback {
@@ -82,6 +73,7 @@ public class ConfigurationClassEnhancer {
         @Override
         public Object intercept(Object enhancedConfigInstance, Method beanMethod, Object[] beanMethodArgs,
                                 MethodProxy cglibMethodProxy) throws Throwable {
+
             DefaultListableBeanFactory beanFactory = getBeanFactory(enhancedConfigInstance);
             return beanFactory.getBean(beanMethod.getName());
         }
@@ -93,7 +85,9 @@ public class ConfigurationClassEnhancer {
                     beanMethod.isAnnotationPresent(Bean.class));
         }
 
-        private DefaultListableBeanFactory getBeanFactory(Object enhancedConfigInstance) throws NoSuchFieldException, IllegalAccessException {
+        private DefaultListableBeanFactory getBeanFactory(Object enhancedConfigInstance)
+                throws NoSuchFieldException, IllegalAccessException {
+
             Field field = enhancedConfigInstance.getClass().getField(BEAN_FACTORY_FIELD);
             return (DefaultListableBeanFactory) field.get(enhancedConfigInstance);
         }
@@ -101,11 +95,11 @@ public class ConfigurationClassEnhancer {
     public interface EnhancedConfiguration extends BeanFactoryAware {
     }
 
-    public interface ConditionalCallback extends Callback {
+    private interface ConditionalCallback extends Callback {
         boolean isMatch(Method method);
     }
 
-    public static class ConditionalCallbackFilter implements CallbackFilter {
+    private static class ConditionalCallbackFilter implements CallbackFilter {
 
         private final Callback[] callbacks;
         private final Class<?>[] callbackTypes;
@@ -134,7 +128,7 @@ public class ConfigurationClassEnhancer {
     /**
      * Custom extension of CGLIB's DefaultGeneratorStrategy, introducing a BeanFactory field.
      */
-    public static class BeanFactoryAwareGeneratorStrategy extends DefaultGeneratorStrategy {
+    private static class BeanFactoryAwareGeneratorStrategy extends DefaultGeneratorStrategy {
         @Override
         protected ClassGenerator transform(ClassGenerator cg) throws Exception {
             ClassEmitterTransformer transformer = new ClassEmitterTransformer() {

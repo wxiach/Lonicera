@@ -2,6 +2,8 @@ package cn.wxiach.context.annotation;
 
 import cn.wxiach.beans.config.BeanDefinition;
 import cn.wxiach.beans.support.BeanDefinitionRegistry;
+import cn.wxiach.core.annotation.AnnotationMetadata;
+import cn.wxiach.core.annotation.AnnotationMetadataReader;
 import cn.wxiach.core.util.StringUtils;
 
 import java.util.List;
@@ -16,19 +18,18 @@ public class ConfigurationClassParser {
         this.registry = registry;
     }
 
-    public void parse(List<BeanDefinition> configBeanDefs) {
-        configBeanDefs.forEach(beanDef -> parseConfigurationClass(beanDef.getBeanClass()));
+    public void parse(List<BeanDefinition> configClasses) {
+        configClasses.forEach(beanDefinition -> parseConfigurationClass(beanDefinition.getBeanClass()));
     }
 
-    private void parseConfigurationClass(Class<?> configurationClass) {
-        ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry);
-        if (configurationClass.isAnnotationPresent(ComponentScan.class)) {
-            ComponentScan componentScan = configurationClass.getAnnotation(ComponentScan.class);
-            String basePackageName = componentScan.value();
-            if (!StringUtils.hasText(basePackageName)) {
-                basePackageName = configurationClass.getPackage().getName();
-            }
-            scanner.scan(basePackageName);
+    private void parseConfigurationClass(Class<?> configClass) {
+        AnnotationMetadata metadata = AnnotationMetadataReader.getAnnotationMetadata(configClass);
+        if (metadata.hasAnnotation(ComponentScan.class)) {
+            ComponentScan componentScan = metadata.findAnnotation(ComponentScan.class);
+            String packageName = StringUtils.hasText(componentScan.value()) ?
+                    componentScan.value() : configClass.getPackage().getName();
+            ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry);
+            scanner.scan(packageName);
         }
     }
 }
